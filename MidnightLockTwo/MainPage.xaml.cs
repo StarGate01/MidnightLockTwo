@@ -8,34 +8,37 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using MidnightLockTwo.Resources;
+using SQLiteWinRT;
+using Windows.Storage;
+using System.Diagnostics;
 
 namespace MidnightLockTwo
 {
+
     public partial class MainPage : PhoneApplicationPage
     {
-        // Konstruktor
+
         public MainPage()
         {
             InitializeComponent();
-
-            // Beispielcode zur Lokalisierung der ApplicationBar
-            //BuildLocalizedApplicationBar();
         }
 
-        // Beispielcode zur Erstellung einer lokalisierten ApplicationBar
-        //private void BuildLocalizedApplicationBar()
-        //{
-        //    // ApplicationBar der Seite einer neuen Instanz von ApplicationBar zuweisen
-        //    ApplicationBar = new ApplicationBar();
+        private async void TestButton_Click(object sender, RoutedEventArgs e)
+        {
+            StorageFolder dir = await StorageFolder.GetFolderFromPathAsync(@"C:\Data\Users\DefApps\APPDATA\Local\Packages");
+            StorageFolder wadir = (await dir.GetFoldersAsync()).First(p => p.Path.Contains("WhatsApp"));
+            StorageFile dbfile = await StorageFile.GetFileFromPathAsync(System.IO.Path.Combine(wadir.Path, @"LocalState\messages.db"));
+            Database db = new Database(dbfile);
+            await db.OpenAsync(SqliteOpenMode.OpenRead);
+            Statement st = await db.PrepareStatementAsync("SELECT * FROM ContactVCards");
+            while(await st.StepAsync())
+            {
+                int msgid = st.GetIntAt(2);
+                Debug.WriteLine(msgid.ToString());
+            }
+            db.Dispose();
+        }
 
-        //    // Eine neue Schaltfläche erstellen und als Text die lokalisierte Zeichenfolge aus AppResources zuweisen.
-        //    ApplicationBarIconButton appBarButton = new ApplicationBarIconButton(new Uri("/Assets/AppBar/appbar.add.rest.png", UriKind.Relative));
-        //    appBarButton.Text = AppResources.AppBarButtonText;
-        //    ApplicationBar.Buttons.Add(appBarButton);
-
-        //    // Ein neues Menüelement mit der lokalisierten Zeichenfolge aus AppResources erstellen
-        //    ApplicationBarMenuItem appBarMenuItem = new ApplicationBarMenuItem(AppResources.AppBarMenuItemText);
-        //    ApplicationBar.MenuItems.Add(appBarMenuItem);
-        //}
     }
+
 }

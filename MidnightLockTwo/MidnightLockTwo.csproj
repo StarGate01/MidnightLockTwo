@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Sqlite-Winrt.3.8.7.1\build\wp8\Sqlite-Winrt.props" Condition="Exists('..\packages\Sqlite-Winrt.3.8.7.1\build\wp8\Sqlite-Winrt.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -26,6 +27,8 @@
     <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
     <DefaultLanguage>de-DE</DefaultLanguage>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -121,6 +124,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
@@ -160,6 +164,17 @@
       <LastGenOutput>AppResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="SQLite.WP80, Version=3.14.1">
+      <Name>SQLite for Windows Phone</Name>
+    </SDKReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="SQLiteWinRT, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sqlite-Winrt.3.8.7.1\lib\wp81\SQLiteWinRT.winmd</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
@@ -169,5 +184,16 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="ValidateWMAppManifest">
+    <!-- Do nothing -->
+  </Target>
   <ProjectExtensions />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Sqlite-Winrt.3.8.7.1\build\wp8\Sqlite-Winrt.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Sqlite-Winrt.3.8.7.1\build\wp8\Sqlite-Winrt.props'))" />
+    <Error Condition="!Exists('..\packages\Sqlite-Winrt.3.8.7.1\build\wp8\Sqlite-Winrt.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Sqlite-Winrt.3.8.7.1\build\wp8\Sqlite-Winrt.targets'))" />
+  </Target>
+  <Import Project="..\packages\Sqlite-Winrt.3.8.7.1\build\wp8\Sqlite-Winrt.targets" Condition="Exists('..\packages\Sqlite-Winrt.3.8.7.1\build\wp8\Sqlite-Winrt.targets')" />
 </Project>
