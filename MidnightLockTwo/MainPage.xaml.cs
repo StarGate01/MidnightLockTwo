@@ -30,13 +30,26 @@ namespace MidnightLockTwo
             StorageFile dbfile = await StorageFile.GetFileFromPathAsync(System.IO.Path.Combine(wadir.Path, @"LocalState\messages.db"));
             Database db = new Database(dbfile);
             await db.OpenAsync(SqliteOpenMode.OpenRead);
-            Statement st = await db.PrepareStatementAsync("SELECT * FROM ContactVCards");
+            Statement st = await db.PrepareStatementAsync(@"
+                SELECT  Conversations.UnreadMessageCount, Conversations.Jid, Conversations.GroupSubject, Conversations.FirstUnreadMessageID, Messages.PushName
+                FROM Conversations
+                INNER JOIN Messages
+                ON Messages.MessageID = Conversations.FirstUnreadMessageID
+                WHERE UnreadMessageCount <> 0
+            ");
+            string allmsg = "";
             while(await st.StepAsync())
             {
-                int msgid = st.GetIntAt(2);
-                Debug.WriteLine(msgid.ToString());
+                string msg = st.GetIntAt(0).ToString() + " | " +
+                    st.GetTextAt(1) + " | " +
+                    st.GetTextAt(2) + " | " +
+                    st.GetIntAt(3).ToString() + " | " +
+                    st.GetTextAt(4);
+                allmsg += msg + Environment.NewLine;
+                Debug.WriteLine(msg);
             }
             db.Dispose();
+            MessageBox.Show(allmsg);
         }
 
     }
