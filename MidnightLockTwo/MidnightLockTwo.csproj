@@ -107,6 +107,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>AppResources.resx</DependentUpon>
     </Compile>
+    <Compile Include="WhatsApp\Client.cs" />
+    <Compile Include="WhatsApp\Sender.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -129,6 +131,8 @@
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
     </None>
+    <Content Condition="'$(Configuration)|$(Platform)' == 'Debug'" Include="Test\contacts.db" />
+    <Content Condition="'$(Configuration)|$(Platform)' == 'Debug'" Include="Test\messages.db" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\AlignmentGrid.png" />
