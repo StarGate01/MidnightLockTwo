@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2014/deployment" AppPlatformVersion="8.1">
   <DefaultLanguage xmlns="" code="de-DE" />
-  <App xmlns="" ProductID="{ab6f2290-1769-4fba-abc4-40bfbcaa1cb2}" Title="MidnightLockTwo" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="Christop Honal" Description="Midnight Lockscreen 2.0" SDOptOut="false" BackUpOptOut="false" Publisher="MidnightLockTwo" PublisherID="{8825891c-e23a-4d1b-85cc-9cee9a3ae6aa}">
+  <App xmlns="" ProductID="{ab6f2290-1769-4fba-abc4-40bfbcaa1cb2}" Title="MidnightLockTwo" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="Christoph Honal" Description="Midnight Lockscreen 2.0" SDOptOut="false" BackUpOptOut="false" Publisher="MidnightLockTwo" PublisherID="{8825891c-e23a-4d1b-85cc-9cee9a3ae6aa}">
     <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_PUBLIC_FOLDER_FULL" />
