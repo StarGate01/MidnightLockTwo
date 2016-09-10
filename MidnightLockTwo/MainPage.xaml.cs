@@ -21,13 +21,9 @@ namespace MidnightLockTwo
             InitializeComponent();
         }
 
-        private async void TestButton_Click(object sender, RoutedEventArgs e)
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            WhatsApp.Client client = new WhatsApp.Client();
-            await client.Initialize();
-            List<Tuple<int, WhatsApp.Sender>> result = await client.GetUnreadMessagesMetaData();
-            client.Dispose();
-            Debugger.Break();
+            await App.MainViewModel.Initialize();
         }
 
     }

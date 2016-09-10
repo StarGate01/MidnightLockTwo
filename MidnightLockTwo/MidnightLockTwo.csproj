@@ -101,6 +101,7 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\MainView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\AppResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -108,6 +109,7 @@
       <DependentUpon>AppResources.resx</DependentUpon>
     </Compile>
     <Compile Include="WhatsApp\Client.cs" />
+    <Compile Include="WhatsApp\MessageMetaData.cs" />
     <Compile Include="WhatsApp\Sender.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -131,8 +133,10 @@
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
     </None>
-    <Content Condition="'$(Configuration)|$(Platform)' == 'Debug'" Include="Test\contacts.db" />
-    <Content Condition="'$(Configuration)|$(Platform)' == 'Debug'" Include="Test\messages.db" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <Content Include="Test\contacts.db" />
+    <Content Include="Test\messages.db" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\AlignmentGrid.png" />

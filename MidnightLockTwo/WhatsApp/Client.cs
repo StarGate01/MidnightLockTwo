@@ -11,7 +11,7 @@ using Windows.Storage;
 namespace MidnightLockTwo.WhatsApp
 {
 
-    class Client : IDisposable
+    public class Client : IDisposable
     {
 
         public enum State
@@ -35,6 +35,8 @@ namespace MidnightLockTwo.WhatsApp
             APPDATA_DB_MSG_FILE = @"\LocalState\messages.db", 
             APPDATA_DB_CONTACTS_FILE = @"\LocalState\contacts.db",
             APPDATA_PICTURE_DIR = @"\LocalState\profilePictures";
+
+        private readonly Uri FALLBACK_IMG = new Uri(@"/Assets/ApplicationIcon.png", UriKind.Relative);
 
         #endregion
 
@@ -81,19 +83,20 @@ namespace MidnightLockTwo.WhatsApp
             _clientState = State.Ready;
         }
 
-        public async Task<List<Tuple<int, Sender>>> GetUnreadMessagesMetaData()
+        public async Task<List<MessagesMetaData>> GetUnreadMessagesMetaData()
         {
             if (_clientState != State.Ready) throw new Exception("Object is not initialized!");
-            List<Tuple<int, Sender>> messages = new List<Tuple<int, Sender>>();
+            List<MessagesMetaData> messages = new List<MessagesMetaData>();
             unreadMsgs.Reset();
             while (await unreadMsgs.StepAsync())
             {
                 string name = unreadMsgs.GetTextAt(3);
                 string groupName = unreadMsgs.GetTextAt(2);
-                if (groupName != null) name = groupName;
-                messages.Add(new Tuple<int, Sender>(unreadMsgs.GetIntAt(0),
-                    new Sender(name, groupName == null ? Sender.OriginType.Single : Sender.OriginType.Group,
-                        await GetThumbProfilePicture(unreadMsgs.GetTextAt(1)))));
+                if (groupName != null && groupName != "") name = groupName;
+                string imagePath = await GetThumbProfilePicture(unreadMsgs.GetTextAt(1));
+                messages.Add(new MessagesMetaData(unreadMsgs.GetIntAt(0),
+                    new Sender(name, (groupName == null || groupName == "") ? Sender.OriginType.Single : Sender.OriginType.Group,
+                        imagePath == null ? FALLBACK_IMG : new Uri(imagePath, UriKind.Absolute))));
             }
             return messages;
         }
@@ -133,7 +136,7 @@ namespace MidnightLockTwo.WhatsApp
             if(await photoId.StepAsync())
             {
                 string waPhotoId = photoId.GetTextAt(0);
-                if (waPhotoId != null) return rootDir + APPDATA_PICTURE_DIR + @"\" + jid + waPhotoId + @"_thumb";
+                if (waPhotoId != null && waPhotoId != "") return rootDir + APPDATA_PICTURE_DIR + @"\" + jid + waPhotoId + @"_thumb";
             }
             return null;
         }
