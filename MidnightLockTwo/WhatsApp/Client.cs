@@ -36,7 +36,15 @@ namespace MidnightLockTwo.WhatsApp
             APPDATA_DB_CONTACTS_FILE = @"\LocalState\contacts.db",
             APPDATA_PICTURE_DIR = @"\LocalState\profilePictures";
 
-        private readonly Uri FALLBACK_IMG = new Uri(@"/Assets/ApplicationIcon.png", UriKind.Relative);
+        public static readonly Uri 
+            FALLBACK_IMG_SINGLE = new Uri(@"/Assets/WhatsApp/default-contact-icon.png", UriKind.Relative),
+            FALLBACK_IMG_GROUP = new Uri(@"/Assets/WhatsApp/default-group-icon.png", UriKind.Relative);
+
+        private const string 
+            FALLBACK_NAME = "Unknown",
+            FALLBACK_FULLNAME = "Unknown Number";
+
+        private static readonly Sender FALLBACK_SENDER = new Sender(FALLBACK_NAME, FALLBACK_FULLNAME, FALLBACK_IMG_SINGLE, Sender.OriginType.Single);
 
         #endregion
 
@@ -44,16 +52,18 @@ namespace MidnightLockTwo.WhatsApp
 
         private const string 
             UNREAD_MSGS_SQL = @"
-                SELECT Conversations.UnreadMessageCount, Conversations.Jid, Conversations.GroupSubject, Messages.PushName
-                FROM Conversations
-                INNER JOIN Messages
-                ON Messages.MessageID = Conversations.FirstUnreadMessageID
+                SELECT Conversations.UnreadMessageCount, Conversations.Jid, Conversations.GroupSubject 
+                FROM Conversations 
                 WHERE UnreadMessageCount <> 0;",
-            PHOTO_ID = @"
-                SELECT ChatPictures.WaPhotoId 
+            PERSONAL_INFO_SQL = @"
+                SELECT ChatPictures.WaPhotoId , PhoneNumbers.RawPhoneNumber,  UserStatuses.ContactName, UserStatuses.FirstName, UserStatuses.PushName 
                 FROM ChatPictures 
+                LEFT OUTER JOIN PhoneNumbers 
+                ON ChatPictures.Jid = PhoneNumbers.Jid 
+                LEFT OUTER JOIN UserStatuses 
+                ON ChatPictures.Jid = UserStatuses.Jid 
                 WHERE ChatPictures.Jid = ?;";
-        private Statement unreadMsgs, photoId;
+        private Statement unreadMsgs, personalInfo;
 
         #endregion
 
@@ -79,24 +89,25 @@ namespace MidnightLockTwo.WhatsApp
             await msgDatabase.OpenAsync(SqliteOpenMode.OpenRead);
             unreadMsgs = await msgDatabase.PrepareStatementAsync(UNREAD_MSGS_SQL);
             await contactsDatabase.OpenAsync(SqliteOpenMode.OpenRead);
-            photoId = await contactsDatabase.PrepareStatementAsync(PHOTO_ID);
+            personalInfo = await contactsDatabase.PrepareStatementAsync(PERSONAL_INFO_SQL);
             _clientState = State.Ready;
         }
 
         public async Task<List<MessagesMetaData>> GetUnreadMessagesMetaData()
         {
-            if (_clientState != State.Ready) throw new Exception("Object is not initialized!");
+            if (_clientState != State.Ready) throw new InvalidOperationException();
             List<MessagesMetaData> messages = new List<MessagesMetaData>();
             unreadMsgs.Reset();
             while (await unreadMsgs.StepAsync())
             {
-                string name = unreadMsgs.GetTextAt(3);
                 string groupName = unreadMsgs.GetTextAt(2);
-                if (groupName != null && groupName != "") name = groupName;
-                string imagePath = await GetThumbProfilePicture(unreadMsgs.GetTextAt(1));
-                messages.Add(new MessagesMetaData(unreadMsgs.GetIntAt(0),
-                    new Sender(name, (groupName == null || groupName == "") ? Sender.OriginType.Single : Sender.OriginType.Group,
-                        imagePath == null ? FALLBACK_IMG : new Uri(imagePath, UriKind.Absolute))));
+                Sender sender = await GetPersonalInfo(unreadMsgs.GetTextAt(1), (groupName == null || groupName == "") ? Sender.OriginType.Single : Sender.OriginType.Group);
+                if(sender.Origin == Sender.OriginType.Group)
+                {
+                    sender.Name = groupName;
+                    sender.FullName = groupName;
+                }
+                messages.Add(new MessagesMetaData(unreadMsgs.GetIntAt(0), sender));
             }
             return messages;
         }
@@ -105,7 +116,7 @@ namespace MidnightLockTwo.WhatsApp
         {
             return Task.Run(() =>
             {
-                Func<string> yieldDir = () =>
+                string foundDir = new Func <string> (() =>
                 {
                     if (IsolatedStorageSettings.ApplicationSettings.Contains(WA_ROOT_DIR_CONF_KEY))
                     {
@@ -116,29 +127,49 @@ namespace MidnightLockTwo.WhatsApp
                     if (Directory.Exists(dirToTry)) return dirToTry;
                     dirToTry = Directory.GetFiles(APPDATA_ROOT_DIR).FirstOrDefault(p => p.Contains(WA_PACKAGE_ID));
                     return dirToTry;
-                };
-                string foundDir = yieldDir();
+                })();
                 if (foundDir != null)
                 {
                     IsolatedStorageSettings.ApplicationSettings[WA_ROOT_DIR_CONF_KEY] = foundDir;
                     IsolatedStorageSettings.ApplicationSettings.Save();
                     return foundDir;
                 }
-                throw new Exception("No WhatsApp package found!");
+                throw new DirectoryNotFoundException();
             });
         }
 
-        private async Task<string> GetThumbProfilePicture(string jid)
+        private async Task<Sender> GetPersonalInfo(string jid, Sender.OriginType type)
         {
-            if (_clientState != State.Ready) throw new Exception("Object is not initialized!");
-            photoId.Reset();
-            photoId.BindTextParameterAt(1, jid);
-            if(await photoId.StepAsync())
+            if (_clientState != State.Ready) throw new InvalidOperationException();
+            personalInfo.Reset();
+            personalInfo.BindTextParameterAt(1, jid);
+            if(await personalInfo.StepAsync())
             {
-                string waPhotoId = photoId.GetTextAt(0);
-                if (waPhotoId != null && waPhotoId != "") return rootDir + APPDATA_PICTURE_DIR + @"\" + jid + waPhotoId + @"_thumb";
+                string waPhotoId = personalInfo.GetTextAt(0);
+                Uri profileImage = (type == Sender.OriginType.Single) ? FALLBACK_IMG_SINGLE : FALLBACK_IMG_GROUP;
+                if (waPhotoId != null && waPhotoId != "") profileImage = new Uri(rootDir + APPDATA_PICTURE_DIR + @"\" + jid + waPhotoId + @"_thumb", UriKind.Absolute);
+                if (type == Sender.OriginType.Group) return new Sender(string.Empty, string.Empty, profileImage, type);
+                else
+                {
+                    string[] nameCandidates = new string[] { personalInfo.GetTextAt(3), personalInfo.GetTextAt(4), personalInfo.GetTextAt(1) };
+                    string name = nameCandidates[2];
+                    if (nameCandidates[0] != null && nameCandidates[0] != "") name = nameCandidates[0];
+                    else if (nameCandidates[1] != null && nameCandidates[1] != "") name = nameCandidates[1];
+                    string fullName = personalInfo.GetTextAt(2);
+                    if (name == null || name == "")
+                    {
+                        if(fullName == null || fullName == "")
+                        {
+                            name = FALLBACK_NAME;
+                            fullName = FALLBACK_FULLNAME;
+                        }
+                        else name = fullName;
+                    }
+                    else if (fullName == null || fullName == "") fullName = name;
+                    return new Sender(name, fullName, profileImage, type);
+                }
             }
-            return null;
+            return FALLBACK_SENDER;
         }
 
         public void Dispose()

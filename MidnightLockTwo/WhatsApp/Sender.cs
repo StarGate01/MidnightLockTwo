@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
+using System.Windows;
 
 namespace MidnightLockTwo.WhatsApp
 {
@@ -28,6 +30,20 @@ namespace MidnightLockTwo.WhatsApp
             {
                 _name = value;
                 RaisePropertyChanged("Name");
+            }
+        }
+
+        private string _fullName;
+        public string FullName
+        {
+            get
+            {
+                return _fullName;
+            }
+            set
+            {
+                _fullName = value;
+                RaisePropertyChanged("FullName");
             }
         }
 
@@ -59,9 +75,10 @@ namespace MidnightLockTwo.WhatsApp
             }
         }
 
-        public Sender(string name, OriginType origin, Uri profilePicture)
+        public Sender(string name, string fullName, Uri profilePicture, OriginType origin)
         {
             _name = name;
+            _fullName = fullName;
             _origin = origin;
             _profilePicture = profilePicture;
         }
@@ -78,5 +95,28 @@ namespace MidnightLockTwo.WhatsApp
         }
 
     }
+
+    public class GroupVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return ((Sender.OriginType)value) == Sender.OriginType.Group ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) { return null; }
+
+    }
+
+    public class SingleVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return ((Sender.OriginType)value) == Sender.OriginType.Single ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) { return null; }
+
+    }
+
 
 }

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 
 namespace MidnightLockTwo.Models
 {
@@ -54,8 +55,8 @@ namespace MidnightLockTwo.Models
         {
             Messages = new List<WhatsApp.MessagesMetaData>()
             {
-                { new WhatsApp.MessagesMetaData(3, new WhatsApp.Sender("Max Muster", WhatsApp.Sender.OriginType.Single, new Uri(@"/Assets/ApplicationIcon.png", UriKind.Relative))) },
-                { new WhatsApp.MessagesMetaData(2, new WhatsApp.Sender("Oceans 11", WhatsApp.Sender.OriginType.Group, new Uri(@"/Assets/ApplicationIcon.png", UriKind.Relative))) },
+                { new WhatsApp.MessagesMetaData(3, new WhatsApp.Sender("Max", "Max Mustermann", WhatsApp.Client.FALLBACK_IMG_SINGLE, WhatsApp.Sender.OriginType.Single)) },
+                { new WhatsApp.MessagesMetaData(2, new WhatsApp.Sender("Oceans 11", "Oceans 11", WhatsApp.Client.FALLBACK_IMG_GROUP, WhatsApp.Sender.OriginType.Group)) }
             };
         }
 
@@ -71,4 +72,5 @@ namespace MidnightLockTwo.Models
         }
 
     }
+
 }

@@ -12,14 +12,19 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="Portrait" Orientation="Portrait"
     shell:SystemTray.IsVisible="True"
-    xmlns:model="clr-namespace:MidnightLockTwo.Models">
+    xmlns:model="clr-namespace:MidnightLockTwo.Models"
+    xmlns:whatsapp="clr-namespace:MidnightLockTwo.WhatsApp">
 
     <Grid x:Name="LayoutRoot" Background="Transparent" d:DataContext="{d:DesignInstance Type=model:MainView, IsDesignTimeCreatable=True}">
+        <Grid.Resources>
+            <whatsapp:GroupVisibilityConverter x:Key="GroupVisibilityConverter1" />
+            <whatsapp:SingleVisibilityConverter x:Key="SingleVisibilityConverter1" />
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="WhatsApp Messages" Style="{StaticResource PhoneTextTitle2Style}" />
+        <TextBlock Grid.Row="0" Text="WhatsApp Messages" Style="{StaticResource PhoneTextTitle2Style}" Margin="12,0,12,10" />
         <ListBox Grid.Row="1" ItemsSource="{Binding Messages}">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -28,18 +33,34 @@
             </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="5">
+                    <Grid Margin="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="20" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="10" />
-                            <ColumnDefinition />
+                            <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="20" />
                         </Grid.ColumnDefinitions>
-                        <Image Grid.Column="1" Source="{Binding Sender.ProfilePicture}" Width="70" />
-                        <TextBlock Grid.Column="3" Text="{Binding Sender.Name}" FontSize="24" VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="4" VerticalAlignment="Center" Text="{Binding Count}" FontSize="36" />
+                        <Image Grid.Column="0" Source="{Binding Sender.ProfilePicture}" Width="70">
+                            <Image.Clip>
+                                <EllipseGeometry Center="35,35" RadiusX="35" RadiusY="35" />
+                            </Image.Clip>
+                        </Image>
+                        <Grid Grid.Column="2" Visibility="{Binding Sender.Origin, Converter={StaticResource SingleVisibilityConverter1}}" >
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="{Binding Sender.Name}" FontSize="24" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="1" Text="{Binding Sender.FullName}" FontSize="24" VerticalAlignment="Center" >
+                                <TextBlock.Foreground>
+                                    <SolidColorBrush Color="{StaticResource PhoneInverseInactiveColor}"/>
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                        </Grid>
+                        <Grid Grid.Column="2" Visibility="{Binding Sender.Origin, Converter={StaticResource GroupVisibilityConverter1}}" >
+                            <TextBlock Text="{Binding Sender.Name}" FontSize="24" VerticalAlignment="Center" />
+                        </Grid>
+                        <TextBlock Grid.Column="3" VerticalAlignment="Center" Text="{Binding Count}" FontSize="36" />
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
