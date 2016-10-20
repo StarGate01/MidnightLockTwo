@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MidnightLockTwo", "MidnightLockTwo\MidnightLockTwo.csproj", "{AB6F2290-1769-4FBA-ABC4-40BFBCAA1CB2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeComponent", "NativeComponent\NativeComponent.vcxproj", "{2143B923-E717-4750-8877-004A546A8CE9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,16 @@ Global
 		{AB6F2290-1769-4FBA-ABC4-40BFBCAA1CB2}.Release|x86.ActiveCfg = Release|x86
 		{AB6F2290-1769-4FBA-ABC4-40BFBCAA1CB2}.Release|x86.Build.0 = Release|x86
 		{AB6F2290-1769-4FBA-ABC4-40BFBCAA1CB2}.Release|x86.Deploy.0 = Release|x86
+		{2143B923-E717-4750-8877-004A546A8CE9}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{2143B923-E717-4750-8877-004A546A8CE9}.Debug|ARM.ActiveCfg = Debug|ARM
+		{2143B923-E717-4750-8877-004A546A8CE9}.Debug|ARM.Build.0 = Debug|ARM
+		{2143B923-E717-4750-8877-004A546A8CE9}.Debug|x86.ActiveCfg = Debug|Win32
+		{2143B923-E717-4750-8877-004A546A8CE9}.Debug|x86.Build.0 = Debug|Win32
+		{2143B923-E717-4750-8877-004A546A8CE9}.Release|Any CPU.ActiveCfg = Release|Win32
+		{2143B923-E717-4750-8877-004A546A8CE9}.Release|ARM.ActiveCfg = Release|ARM
+		{2143B923-E717-4750-8877-004A546A8CE9}.Release|ARM.Build.0 = Release|ARM
+		{2143B923-E717-4750-8877-004A546A8CE9}.Release|x86.ActiveCfg = Release|Win32
+		{2143B923-E717-4750-8877-004A546A8CE9}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
